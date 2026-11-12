@@ -37,7 +37,11 @@ public class FcmService {
             log.warn("Firebase credentials path not configured; FCM sending disabled.");
             return;
         }
-        try (FileInputStream serviceAccount = new FileInputStream(credentialsPath)) {
+        try (java.io.InputStream serviceAccount = openCredentialsStream(credentialsPath)) {
+            if (serviceAccount == null) {
+                log.error("Firebase credentials not found at: {}", credentialsPath);
+                return;
+            }
             FirebaseOptions.Builder builder = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount));
             if (projectId != null && !projectId.isBlank()) {
@@ -47,10 +51,21 @@ public class FcmService {
                 FirebaseApp.initializeApp(builder.build());
             }
             initialized = true;
-            log.info("Firebase Admin initialized for FCM.");
+            log.info("Firebase Admin initialized for FCM (project: {}).", projectId);
         } catch (IOException e) {
             log.error("Failed to initialize Firebase Admin: {}", e.getMessage());
         }
+    }
+
+    private java.io.InputStream openCredentialsStream(String path) throws IOException {
+        if (path.startsWith("classpath:")) {
+            String resource = path.substring("classpath:".length());
+            if (resource.startsWith("/")) {
+                resource = resource.substring(1);
+            }
+            return getClass().getClassLoader().getResourceAsStream(resource);
+        }
+        return new java.io.FileInputStream(path);
     }
 
     public void sendPush(String deviceToken, String topic, String title, String body, Map<String, String> data) {

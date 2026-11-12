@@ -9,9 +9,11 @@ public record NotificationRequest (
     UUID receiverId,
     String title,
     String description,
+    String message,
     NotificationType type,
     UUID requestId,
-    LocalDateTime dateCreated
+    LocalDateTime dateCreated,
+    String deviceToken
     ){
     
 }

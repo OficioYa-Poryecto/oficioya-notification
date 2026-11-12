@@ -19,9 +19,12 @@ public class NotificationService {
 
     private final ResponseMapper responseMapper;
 
-    public NotificationService(NotificationRepository notificationRepository, ResponseMapper responseMapper){
+    private final FcmService fcmService;
+
+    public NotificationService(NotificationRepository notificationRepository, ResponseMapper responseMapper, FcmService fcmService){
         this.notificationRepository = notificationRepository;
         this.responseMapper = responseMapper;
+        this.fcmService = fcmService;
     }
 
     public List<NotificationResponse> findAllForUser(UUID userId){
@@ -46,14 +49,24 @@ public class NotificationService {
     }
 
     public NotificationResponse sendNotification(NotificationRequest request){
-        /*
-        Lógica de conexión a firebase API para enviar una notificacion
-         */
-
         Notification noti = responseMapper.toNotification(request);
         noti.setDateSent(noti.getDateCreated());
 
-        return responseMapper.toResponse(notificationRepository.save(noti));
+        NotificationResponse response = responseMapper.toResponse(notificationRepository.save(noti));
+
+        // Enviar push a través de FCM (best-effort; no bloquea la persistencia)
+        String title = noti.getTitle();
+        String body = noti.getDescription();
+        String deviceToken = request.deviceToken();
+        String topic = (deviceToken == null || deviceToken.isBlank())
+                ? "user_" + request.receiverId()
+                : null;
+        java.util.Map<String, String> data = new java.util.HashMap<>();
+        data.put("requestId", String.valueOf(request.requestId()));
+        data.put("type", String.valueOf(request.type()));
+        fcmService.sendPush(deviceToken, topic, title, body, data);
+
+        return response;
     }
 
     public boolean deleteNotification(UUID requestId){

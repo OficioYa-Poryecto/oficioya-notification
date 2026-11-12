@@ -23,12 +23,13 @@ public class ResponseMapper {
 
     public Notification toNotification(NotificationRequest req){
         Notification notification =  new Notification();
-        notification.setTitle(req.title());
-        notification.setDescription(req.description());
+        String message = req.message() != null ? req.message() : req.description();
+        notification.setTitle(req.title() != null ? req.title() : (message != null ? message : "Notificación"));
+        notification.setDescription(req.description() != null ? req.description() : (message != null ? message : ""));
         notification.setReceiverId(req.receiverId());
         notification.setState(req.type());
         notification.setRequestId(req.requestId());
-        notification.setDateCreated(req.dateCreated());
+        notification.setDateCreated(req.dateCreated() != null ? req.dateCreated() : java.time.LocalDateTime.now());
 
         /*No se agrega ni el Id ni el tiempo del envío
          */

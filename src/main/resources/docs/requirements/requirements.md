@@ -79,7 +79,9 @@ El sistema de notificación de OficioYa debe tener:
 | **Precondiciones** | Para que el sistema cumpla con este requerimiento, los datos de la solicitud deben ser correctos. |
 | **Actor** | Contratante y trabajador/es. |
 | **Flujo principal** | 1. El contratante termina de llenar los datos de su solicitud.<br>2. El contratante envía la solicitud a un o a muchos trabajadores.<br>3. El sistema envía la notificación de nueva solicitud al trabajador o trabajadores. |
-| **Diagrama de caso de uso** | ![Diagrama caso uso - 4](../images/DCU-REQ-NOT-004.png) |
+| **Diagrama de caso de uso** |
+Como Contratante quiero enviar solicitudes para solucionar un problema gracias a un trabajador de la aplicación.
+![Diagrama caso uso - 4](../images/DCU-REQ-NOT-004.png) |
 | **Poscondiciones** | La/s solicitud/es creadas y la/s notificación/es enviadas al trabajador o trabajadores. |
 
 ### 2.5 Requerimiento Funcional 5

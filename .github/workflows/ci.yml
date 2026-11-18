@@ -1,10 +1,11 @@
-name: CI
+name: CI/CD - OficioYa Notification
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -24,19 +25,12 @@ jobs:
       - name: Build and test with Maven
         run: mvn -B clean verify -Dtest='!OficioyaNotificationApplicationTests' -DfailIfNoTests=false
 
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: target/surefire-reports/
-
       - name: Upload JAR artifact
         if: success() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: target/*.jar
+          path: '**/target/oficioya-notification-*.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,11 +42,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: java-app
-          path: target/
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'oficioya-notification-api'
+          app-name: 'oficioya-notificationapi'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: 'target/*.jar'
+          package: '**/oficioya-notification-*.jar'

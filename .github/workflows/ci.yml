@@ -23,7 +23,7 @@ jobs:
           cache: maven
 
       - name: Build and test with Maven
-        run: mvn -B clean verify -Dtest='!OficioyaNotificationApplicationTests' -DfailIfNoTests=false
+        run: mvn -B clean verify -Dtest='!OficioyaNotificationApplicationTests' -DfailIfNoTests=false -Djacoco.skip=true
 
       - name: Upload JAR artifact
         if: success() && github.ref == 'refs/heads/main' && github.event_name == 'push'

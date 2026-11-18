@@ -21,16 +21,30 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import oficioya_notification.dto.NotificationRequest;
 import oficioya_notification.dto.NotificationResponse;
+<<<<<<< HEAD
+import oficioya_notification.dto.ReviewReportRequest;
 import oficioya_notification.service.NotificationService;
+import oficioya_notification.service.ReviewReportNotificationService;
+=======
+import oficioya_notification.service.NotificationService;
+>>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
 
 @RestController 
 @RequestMapping("/api/v1/notification")
 @Tag(name="Notifications", description = "API to control the notifications")
 public class NotificationController {
     private final NotificationService notificationService;
+<<<<<<< HEAD
+    private final ReviewReportNotificationService reviewReportNotificationService;
+
+    public NotificationController(NotificationService notificationService, ReviewReportNotificationService reviewReportNotificationService){
+        this.notificationService = notificationService;
+        this.reviewReportNotificationService = reviewReportNotificationService;
+=======
 
     public NotificationController(NotificationService notificationService){
         this.notificationService = notificationService;
+>>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
     }
 
     @PostMapping 
@@ -52,7 +66,11 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.OK).body(found.get());
         }
 
+<<<<<<< HEAD
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+=======
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(found.get());
+>>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
     }
 
     @GetMapping("/user/{id}")
@@ -88,4 +106,14 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Notification not found");
     }
 
+<<<<<<< HEAD
+    @PostMapping("/review-reported")
+    @Operation(summary = "Notificar reseña reportada", description = "Recibe los datos de una reseña reportada y envía un correo al administrador. Responde confirmación de recepción.")
+    public ResponseEntity<String> notifyReviewReported(@Valid @RequestBody ReviewReportRequest request) {
+        String result = reviewReportNotificationService.notifyReviewReported(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+=======
+>>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
 }

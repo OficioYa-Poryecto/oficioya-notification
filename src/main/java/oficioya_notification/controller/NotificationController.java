@@ -56,7 +56,7 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.OK).body(found.get());
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(found.get());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/user/{id}")

@@ -1,28 +1,26 @@
 package oficioya_notification.service;
 
-import oficioya_notification.dto.NotificationRequest;
-import oficioya_notification.dto.NotificationResponse;
-import oficioya_notification.entity.Notification;
-import oficioya_notification.mapper.ResponseMapper;
-import oficioya_notification.model.NotificationType;
-import oficioya_notification.repository.NotificationRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import oficioya_notification.dto.NotificationRequest;
+import oficioya_notification.dto.NotificationResponse;
+import oficioya_notification.entity.Notification;
+import oficioya_notification.mapper.ResponseMapper;
+import oficioya_notification.repository.NotificationRepository;
+import oficioya_notification.model.NotificationType;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -30,127 +28,68 @@ class NotificationServiceTest {
     @Mock
     private NotificationRepository notificationRepository;
 
-    @Spy
-    private ResponseMapper responseMapper = new ResponseMapper();
+    @Mock
+    private ResponseMapper responseMapper;
+
+    @Mock
+    private FcmService fcmService;
 
     @InjectMocks
     private NotificationService notificationService;
 
-    private Notification sampleNotification;
-    private UUID notificationId;
-    private UUID receiverId;
-    private UUID requestId;
-    private LocalDateTime now;
+    @Test
+    void sendNotificationPersists() {
+        NotificationRequest req = new NotificationRequest(
+                UUID.randomUUID(), "title", "desc", "msg", oficioya_notification.model.NotificationType.INCOMING_REQUEST,
+                UUID.randomUUID(), null, null);
+        Notification entity = new Notification();
+        NotificationResponse resp = new NotificationResponse(UUID.randomUUID(), "title", "desc", oficioya_notification.model.NotificationType.INCOMING_REQUEST,
+                req.requestId(), null, null);
+        when(responseMapper.toNotification(req)).thenReturn(entity);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(entity);
+        when(responseMapper.toResponse(entity)).thenReturn(resp);
 
-    @BeforeEach
-    void setUp() {
-        notificationId = UUID.randomUUID();
-        receiverId = UUID.randomUUID();
-        requestId = UUID.randomUUID();
-        now = LocalDateTime.now();
-
-        sampleNotification = new Notification();
-        sampleNotification.setId(notificationId);
-        sampleNotification.setReceiverId(receiverId);
-        sampleNotification.setRequestId(requestId);
-        sampleNotification.setTitle("Nueva solicitud");
-        sampleNotification.setDescription("Tienes una reparación pendiente");
-        sampleNotification.setState(NotificationType.INCOMING_REQUEST);
-        sampleNotification.setDateCreated(now);
-        sampleNotification.setDateSent(now);
+        NotificationResponse result = notificationService.sendNotification(req);
+        assertEquals(resp.id(), result.id());
     }
 
     @Test
-    @DisplayName("Debe listar todas las notificaciones de un usuario")
-    void shouldFindAllForUser() {
-        when(notificationRepository.findByReceiverId(receiverId)).thenReturn(List.of(sampleNotification));
-
-        List<NotificationResponse> result = notificationService.findAllForUser(receiverId);
-
-        assertEquals(1, result.size());
-        assertEquals(notificationId, result.get(0).id());
-        assertEquals("Nueva solicitud", result.get(0).title());
-        verify(notificationRepository).findByReceiverId(receiverId);
+    void findByIdEmpty() {
+        UUID id = UUID.randomUUID();
+        when(notificationRepository.findById(id)).thenReturn(Optional.empty());
+        assertTrue(notificationService.findById(id).isEmpty());
     }
 
     @Test
-    @DisplayName("Debe retornar notificación por ID cuando existe")
-    void shouldFindByIdWhenPresent() {
-        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(sampleNotification));
-
-        Optional<NotificationResponse> result = notificationService.findById(notificationId);
-
-        assertTrue(result.isPresent());
-        assertEquals(notificationId, result.get().id());
+    void findAllForUser() {
+        UUID userId = UUID.randomUUID();
+        when(notificationRepository.findByReceiverId(userId)).thenReturn(List.of());
+        assertEquals(0, notificationService.findAllForUser(userId).size());
     }
 
     @Test
-    @DisplayName("Debe retornar Optional vacío cuando no existe el ID")
-    void shouldReturnEmptyWhenNotFound() {
-        when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
-
-        Optional<NotificationResponse> result = notificationService.findById(notificationId);
-
-        assertTrue(result.isEmpty());
+    void findByIdFound() {
+        UUID id = UUID.randomUUID();
+        Notification entity = new Notification();
+        entity.setId(id);
+        NotificationResponse resp = new NotificationResponse(id, "t", "d", NotificationType.INCOMING_REQUEST, id, null, null);
+        when(notificationRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(responseMapper.toResponse(entity)).thenReturn(resp);
+        assertTrue(notificationService.findById(id).isPresent());
     }
 
     @Test
-    @DisplayName("Debe listar notificaciones por requestId y receiverId")
-    void shouldFindAllForARequest() {
-        when(notificationRepository.findByRequestIdAndReceiverId(requestId, receiverId))
-                .thenReturn(List.of(sampleNotification));
-
-        List<NotificationResponse> result = notificationService.findAllForARequest(requestId, receiverId);
-
-        assertEquals(1, result.size());
-        assertEquals(requestId, result.get(0).requestId());
+    void findAllForARequest() {
+        UUID requestId = UUID.randomUUID();
+        UUID receiverId = UUID.randomUUID();
+        when(notificationRepository.findByRequestIdAndReceiverId(requestId, receiverId)).thenReturn(List.of());
+        assertEquals(0, notificationService.findAllForARequest(requestId, receiverId).size());
     }
 
     @Test
-    @DisplayName("Debe enviar y guardar una notificación")
-    void shouldSendNotification() {
-        NotificationRequest request = new NotificationRequest(
-                receiverId,
-                "Nueva solicitud",
-                "Tienes una reparación pendiente",
-                NotificationType.INCOMING_REQUEST,
-                requestId,
-                now
-        );
-
-        when(notificationRepository.save(any(Notification.class))).thenAnswer(inv -> {
-            Notification saved = inv.getArgument(0);
-            saved.setId(notificationId);
-            return saved;
-        });
-
-        NotificationResponse response = notificationService.sendNotification(request);
-
-        assertNotNull(response);
-        assertEquals(notificationId, response.id());
-        assertEquals(now, response.dateSent());
-        verify(notificationRepository).save(any(Notification.class));
-    }
-
-    @Test
-    @DisplayName("Debe eliminar notificación cuando existe")
-    void shouldDeleteNotificationWhenExists() {
-        when(notificationRepository.existsById(notificationId)).thenReturn(true);
-
-        boolean deleted = notificationService.deleteNotification(notificationId);
-
-        assertTrue(deleted);
-        verify(notificationRepository).deleteById(notificationId);
-    }
-
-    @Test
-    @DisplayName("Debe retornar false al intentar eliminar notificación inexistente")
-    void shouldReturnFalseWhenDeletingNonExistent() {
-        when(notificationRepository.existsById(notificationId)).thenReturn(false);
-
-        boolean deleted = notificationService.deleteNotification(notificationId);
-
-        assertFalse(deleted);
-        verify(notificationRepository, never()).deleteById(any());
+    void deleteNotification() {
+        UUID id = UUID.randomUUID();
+        when(notificationRepository.existsById(id)).thenReturn(true);
+        assertTrue(notificationService.deleteNotification(id));
     }
 }

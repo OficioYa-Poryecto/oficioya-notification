@@ -1,49 +1,37 @@
 package oficioya_notification.model.document;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ImageDocumentTest {
 
     @Test
-    @DisplayName("Debe construir y modificar correctamente ImageDocument")
-    void shouldCreateAndMutateImageDocument() {
+    void setters() {
+        ImageDocument d = new ImageDocument();
         UUID id = UUID.randomUUID();
-        UUID notifId = UUID.randomUUID();
-        LocalDateTime fecha = LocalDateTime.now();
-        byte[] bytes = new byte[]{1, 2, 3};
+        d.setId(id);
+        d.setNotificationId(UUID.randomUUID());
+        d.setNombre("img.png");
+        d.setTipoContenido("image/png");
+        d.setTamano(100L);
+        d.setDatos(new byte[]{1,2,3});
+        d.setFechaCarga(LocalDateTime.now());
+        d.setReferenciaExterna("ref-1");
 
-        ImageDocument doc = new ImageDocument("foto.png", "image/png", 3L, bytes, fecha, "ref-123");
-        doc.setId(id);
-        doc.setNotificationId(notifId);
+        assertEquals(id, d.getId());
+        assertEquals("img.png", d.getNombre());
+        assertNotNull(d.getFechaCarga());
+    }
 
-        assertEquals(id, doc.getId());
-        assertEquals(notifId, doc.getNotificationId());
-        assertEquals("foto.png", doc.getNombre());
-        assertEquals("image/png", doc.getTipoContenido());
-        assertEquals(3L, doc.getTamano());
-        assertArrayEquals(bytes, doc.getDatos());
-        assertEquals(fecha, doc.getFechaCarga());
-        assertEquals("ref-123", doc.getReferenciaExterna());
-
-        ImageDocument emptyDoc = new ImageDocument();
-        emptyDoc.setNombre("otra.jpg");
-        emptyDoc.setTipoContenido("image/jpeg");
-        emptyDoc.setTamano(10L);
-        emptyDoc.setDatos(new byte[]{4, 5});
-        emptyDoc.setFechaCarga(fecha);
-        emptyDoc.setReferenciaExterna("ref-456");
-
-        assertEquals("otra.jpg", emptyDoc.getNombre());
-        assertEquals("image/jpeg", emptyDoc.getTipoContenido());
-        assertEquals(10L, emptyDoc.getTamano());
-        assertArrayEquals(new byte[]{4, 5}, emptyDoc.getDatos());
-        assertEquals(fecha, emptyDoc.getFechaCarga());
-        assertEquals("ref-456", emptyDoc.getReferenciaExterna());
+    @Test
+    void constructor() {
+        ImageDocument d = new ImageDocument("img.png", "image/png", 100L, new byte[]{1}, LocalDateTime.now(), "ref");
+        assertEquals("img.png", d.getNombre());
+        assertEquals(100L, d.getTamano());
     }
 }

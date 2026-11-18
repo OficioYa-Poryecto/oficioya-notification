@@ -21,16 +21,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import oficioya_notification.dto.NotificationRequest;
 import oficioya_notification.dto.NotificationResponse;
+import oficioya_notification.dto.ReviewReportRequest;
 import oficioya_notification.service.NotificationService;
+import oficioya_notification.service.ReviewReportNotificationService;
 
 @RestController 
 @RequestMapping("/api/v1/notification")
 @Tag(name="Notifications", description = "API to control the notifications")
 public class NotificationController {
     private final NotificationService notificationService;
+    private final ReviewReportNotificationService reviewReportNotificationService;
 
-    public NotificationController(NotificationService notificationService){
+    public NotificationController(NotificationService notificationService, ReviewReportNotificationService reviewReportNotificationService){
         this.notificationService = notificationService;
+        this.reviewReportNotificationService = reviewReportNotificationService;
     }
 
     @PostMapping 
@@ -52,7 +56,7 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.OK).body(found.get());
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(found.get());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/user/{id}")
@@ -86,6 +90,13 @@ public class NotificationController {
         }
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Notification not found");
+    }
+
+    @PostMapping("/review-reported")
+    @Operation(summary = "Notificar reseña reportada", description = "Recibe los datos de una reseña reportada y envía un correo al administrador. Responde confirmación de recepción.")
+    public ResponseEntity<String> notifyReviewReported(@Valid @RequestBody ReviewReportRequest request) {
+        String result = reviewReportNotificationService.notifyReviewReported(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 }

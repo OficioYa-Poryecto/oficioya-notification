@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import oficioya_notification.dto.EmailRequest;
 import oficioya_notification.dto.NotificationRequest;
 import oficioya_notification.dto.NotificationResponse;
 import oficioya_notification.dto.ReviewReportRequest;
+import oficioya_notification.service.EmailNotificationService;
 import oficioya_notification.service.NotificationService;
 import oficioya_notification.service.ReviewReportNotificationService;
 
@@ -31,10 +33,12 @@ import oficioya_notification.service.ReviewReportNotificationService;
 public class NotificationController {
     private final NotificationService notificationService;
     private final ReviewReportNotificationService reviewReportNotificationService;
+    private final EmailNotificationService emailNotificationService;
 
-    public NotificationController(NotificationService notificationService, ReviewReportNotificationService reviewReportNotificationService){
+    public NotificationController(NotificationService notificationService, ReviewReportNotificationService reviewReportNotificationService, EmailNotificationService emailNotificationService){
         this.notificationService = notificationService;
         this.reviewReportNotificationService = reviewReportNotificationService;
+        this.emailNotificationService = emailNotificationService;
     }
 
     @PostMapping 
@@ -96,6 +100,13 @@ public class NotificationController {
     @Operation(summary = "Notificar reseña reportada", description = "Recibe los datos de una reseña reportada y envía un correo al administrador. Responde confirmación de recepción.")
     public ResponseEntity<String> notifyReviewReported(@Valid @RequestBody ReviewReportRequest request) {
         String result = reviewReportNotificationService.notifyReviewReported(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/email")
+    @Operation(summary = "Enviar correo", description = "Envía un correo al destinatario indicado (OTP, cambio de contraseña, etc.). Responde confirmación de recepción.")
+    public ResponseEntity<String> sendEmail(@Valid @RequestBody EmailRequest request) {
+        String result = emailNotificationService.sendEmail(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

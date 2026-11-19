@@ -142,7 +142,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-<<<<<<< HEAD
 
         <dependency>
             <groupId>com.google.firebase</groupId>
@@ -154,8 +153,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-=======
->>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
     </dependencies>
 
     <build>
@@ -196,11 +193,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-<<<<<<< HEAD
                                             <minimum>0.85</minimum>
-=======
-                                            <minimum>0.80</minimum>
->>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
                                         </limit>
                                     </limits>
                                 </rule>

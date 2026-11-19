@@ -58,8 +58,8 @@ class NotificationControllerTest {
     @DisplayName("POST /api/v1/notification debe retornar 201 CREATED")
     void shouldSendNotification() {
         NotificationRequest req = new NotificationRequest(
-                userId, "Solicitud aceptada", "Un trabajador aceptó tu solicitud",
-                NotificationType.ACCEPTED_REQUEST, requestId, LocalDateTime.now()
+                userId, "Solicitud aceptada", "Un trabajador aceptó tu solicitud", "msg",
+                NotificationType.ACCEPTED_REQUEST, requestId, LocalDateTime.now(), null
         );
         when(notificationService.sendNotification(req)).thenReturn(sampleResponse);
 

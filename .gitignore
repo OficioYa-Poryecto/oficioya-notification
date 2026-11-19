@@ -31,8 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
-<<<<<<< HEAD
-=======
-
-.env
->>>>>>> 84280b68168844e78a6ae713fd9da1f0af195d1c
+src/main/resources/Firebase/*.json
+secrets/
